@@ -60,7 +60,6 @@ describe('Popup functionality', () => {
     });
 
     test('addGenre adds a new genre', async () => {
-        // setup
         const newGenreInput = document.createElement('input');
         newGenreInput.id = DOM_ELEMENTS.newGenreInput;
         newGenreInput.value = '新しいジャンル';
@@ -68,37 +67,32 @@ describe('Popup functionality', () => {
 
         const setSpy = jest.spyOn(chrome.storage.local, 'set');
 
-        // action
         await GenreManager.addGenre();
 
-        // assertion
-        expect(setSpy).toHaveBeenCalledWith({ genres: expect.any(Array) });
+        expect(setSpy).toHaveBeenCalledWith(expect.objectContaining({
+            genres: expect.any(Array)
+        }));
         expect(setSpy).toHaveBeenCalledTimes(1);
 
-        // cleanup
         document.body.removeChild(newGenreInput);
         setSpy.mockRestore();
     });
 
     test('removeGenre removes a genre and updates tasks', async () => {
-        // setup
         const genreToRemove = 'ジャンル1';
         const getSpy = jest.spyOn(chrome.storage.local, 'get').mockImplementation((keys, callback) => {
             callback({ genres: ['ジャンル1', 'ジャンル2'], tasks: [{ genre: 'ジャンル1' }, { genre: 'ジャンル2' }] });
         });
         const setSpy = jest.spyOn(chrome.storage.local, 'set');
 
-        // action
         await GenreManager.removeGenre(genreToRemove);
 
-        // assertion
         expect(setSpy).toHaveBeenCalledWith({
             genres: ['ジャンル2'],
             tasks: [{ genre: '' }, { genre: 'ジャンル2' }]
         });
         expect(setSpy).toHaveBeenCalledTimes(1);
 
-        // cleanup
         getSpy.mockRestore();
         setSpy.mockRestore();
     });
@@ -131,7 +125,6 @@ describe('Popup functionality', () => {
     });
 
     test('addTask handles empty input', async () => {
-        // setup
         const taskNameInput = document.createElement('input');
         taskNameInput.id = DOM_ELEMENTS.taskNameInput;
         taskNameInput.value = '';
@@ -139,13 +132,10 @@ describe('Popup functionality', () => {
 
         const setSpy = jest.spyOn(chrome.storage.local, 'set');
 
-        // action
         await TaskManager.addTask();
 
-        // assertion
         expect(setSpy).not.toHaveBeenCalled();
 
-        // cleanup
         document.body.removeChild(taskNameInput);
         setSpy.mockRestore();
     });

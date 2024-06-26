@@ -1,41 +1,51 @@
 import { DOM_ELEMENTS, getElement } from './utils.js';
 
 export const GenreManager = {
-    addGenre: function () {
+    addGenre: async function () {
         const newGenre = getElement(DOM_ELEMENTS.newGenreInput).value.trim();
         if (newGenre) {
-            chrome.storage.local.get('genres', function (data) {
-                const genres = data.genres || [];
-                if (!genres.includes(newGenre)) {
-                    genres.push(newGenre);
-                    chrome.storage.local.set({ genres }, function () {
+            const genres = await new Promise((resolve) => {
+                chrome.storage.local.get('genres', (data) => {
+                    resolve(data.genres || []);
+                });
+            });
+            if (!genres.includes(newGenre)) {
+                genres.push(newGenre);
+                await new Promise((resolve) => {
+                    chrome.storage.local.set({ genres }, () => {
                         console.log('Genre added');
-                        getElement(DOM_ELEMENTS.newGenreInput).value = '';
-                        GenreManager.displayGenres();
-                        GenreManager.updateGenreSelects();
+                        resolve();
                     });
-                }
-            });
-        }
-    },
-    removeGenre: function (genre) {
-        chrome.storage.local.get(['genres', 'tasks'], function (data) {
-            const genres = data.genres || [];
-            const tasks = data.tasks || [];
-            const updatedGenres = genres.filter(g => g !== genre);
-            const updatedTasks = tasks.map(task => {
-                if (task.genre === genre) {
-                    task.genre = '';
-                }
-                return task;
-            });
-            chrome.storage.local.set({ genres: updatedGenres, tasks: updatedTasks }, function () {
-                console.log('Genre removed');
+                });
+                getElement(DOM_ELEMENTS.newGenreInput).value = '';
                 GenreManager.displayGenres();
                 GenreManager.updateGenreSelects();
+            }
+        }
+    },
+    removeGenre: async function (genre) {
+        const { genres, tasks } = await new Promise((resolve) => {
+            chrome.storage.local.get(['genres', 'tasks'], (data) => {
+                resolve({ genres: data.genres || [], tasks: data.tasks || [] });
             });
         });
+        const updatedGenres = genres.filter(g => g !== genre);
+        const updatedTasks = tasks.map(task => {
+            if (task.genre === genre) {
+                task.genre = '';
+            }
+            return task;
+        });
+        await new Promise((resolve) => {
+            chrome.storage.local.set({ genres: updatedGenres, tasks: updatedTasks }, () => {
+                console.log('Genre removed');
+                resolve();
+            });
+        });
+        GenreManager.displayGenres();
+        GenreManager.updateGenreSelects();
     },
+
     updateGenreSelects: function () {
         chrome.storage.local.get('genres', function (data) {
             const genres = data.genres || [];
