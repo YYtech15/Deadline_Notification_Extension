@@ -30,9 +30,8 @@ describe('Popup functionality', () => {
         chrome.storage.local.clear();
         document.getElementById('taskList').innerHTML = '';
         document.getElementById('genreList').innerHTML = '';
+        jest.clearAllMocks();
     });
-
-    // 既存のテストケース...
 
     test('removeTask removes a task', async () => {
         const mockTasks = [
