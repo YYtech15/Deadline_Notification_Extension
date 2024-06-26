@@ -2,7 +2,7 @@
 <html lang="ja">
   <head>
     <meta charset="UTF-8" />
-    <title>Job Application Tracker with Genres</title>
+    <title>Job Application Tracker with User-Defined Genres</title>
     <script src="popup.js"></script>
     <style>
       body {
@@ -17,10 +17,12 @@
         width: 100%;
         padding: 5px;
       }
-      #taskList {
+      #taskList,
+      #genreList {
         margin-top: 10px;
       }
-      .task-item {
+      .task-item,
+      .genre-item {
         margin-bottom: 10px;
         border-bottom: 1px solid #ccc;
         padding-bottom: 5px;
@@ -31,22 +33,17 @@
     <h2>Job Application Tracker</h2>
     <input type="text" id="taskName" placeholder="タスク名" />
     <input type="date" id="dueDate" />
-    <select id="taskGenre">
-      <option value="">ジャンルを選択</option>
-      <option value="ES">ES</option>
-      <option value="適性検査">適性検査</option>
-      <option value="面接">面接</option>
-    </select>
+    <select id="taskGenre"></select>
     <button id="addTask">タスクを追加</button>
 
-    <select id="filterGenre">
-      <option value="">全てのジャンル</option>
-      <option value="ES">ES</option>
-      <option value="適性検査">適性検査</option>
-      <option value="面接">面接</option>
-    </select>
-    <button id="applyFilter">フィルター適用</button>
+    <h3>ジャンル管理</h3>
+    <input type="text" id="newGenre" placeholder="新しいジャンル" />
+    <button id="addGenre">ジャンルを追加</button>
+    <div id="genreList"></div>
 
+    <h3>タスク一覧</h3>
+    <select id="filterGenre"></select>
+    <button id="applyFilter">フィルター適用</button>
     <div id="taskList"></div>
   </body>
 </html>
