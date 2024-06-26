@@ -31,6 +31,39 @@ button {
   cursor: pointer;
   transition: background-color 0.3s;
 }
+
+/* Add Task Button */
+#addTask {
+  background-color: #4caf50;
+}
+#addTask:hover {
+  background-color: #45a049;
+}
+
+/* Open Genre Modal Button */
+#openGenreModal {
+  background-color: #2196f3;
+}
+#openGenreModal:hover {
+  background-color: #1976d2;
+}
+
+/* Add Genre Button */
+#addGenre {
+  background-color: #ff9800;
+}
+#addGenre:hover {
+  background-color: #fb8c00;
+}
+
+/* Delete Genre Button */
+.delete-genre {
+  background-color: #f44336;
+}
+.delete-genre:hover {
+  background-color: #e53935;
+}
+
 button:hover {
   background-color: #45a049;
 }
