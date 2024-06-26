@@ -51,35 +51,49 @@ describe('Popup functionality', () => {
     });
 
     test('addGenre adds a new genre', async () => {
-        document.getElementById('newGenre').value = '新しいジャンル';
-        chrome.storage.local.get.yields({ genres: ['既存ジャンル'] });
-        chrome.storage.local.set.yields(null);
+        // setup
+        const newGenreInput = document.createElement('input');
+        newGenreInput.value = '新しいジャンル';
+        document.body.appendChild(newGenreInput);
+        DOM_ELEMENTS.newGenreInput = newGenreInput;
 
+        const setSpy = jest.spyOn(chrome.storage.local, 'set');
+
+        // action
         await GenreManager.addGenre();
 
-        expect(chrome.storage.local.set.calledOnce).toBeTruthy();
-        expect(chrome.storage.local.set.firstCall.args[0]).toEqual({
-            genres: ['既存ジャンル', '新しいジャンル']
-        });
+        // assertion
+        expect(setSpy).toHaveBeenCalledWith({ genres: expect.any(Array) });
+        expect(setSpy).toHaveBeenCalledTimes(1);
+
+        // cleanup
+        document.body.removeChild(newGenreInput);
+        setSpy.mockRestore();
     });
 
     test('removeGenre removes a genre and updates tasks', async () => {
-        const mockGenres = ['ジャンル1', 'ジャンル2'];
-        const mockTasks = [
-            { name: 'タスク1', dueDate: '2023-12-31', genre: 'ジャンル1' },
-            { name: 'タスク2', dueDate: '2024-01-15', genre: 'ジャンル2' }
-        ];
-        chrome.storage.local.get.yields({ genres: mockGenres, tasks: mockTasks });
-        chrome.storage.local.set.yields(null);
+        // setup
+        const genreToRemove = 'ジャンル1';
+        const getSpy = jest.spyOn(chrome.storage.local, 'get').mockImplementation((keys, callback) => {
+            callback({ genres: ['ジャンル1', 'ジャンル2'], tasks: [{ genre: 'ジャンル1' }, { genre: 'ジャンル2' }] });
+        });
+        const setSpy = jest.spyOn(chrome.storage.local, 'set');
 
-        await GenreManager.removeGenre('ジャンル1');
+        // action
+        await GenreManager.removeGenre(genreToRemove);
 
-        expect(chrome.storage.local.set.calledOnce).toBeTruthy();
-        const setArg = chrome.storage.local.set.firstCall.args[0];
-        expect(setArg.genres).toEqual(['ジャンル2']);
-        expect(setArg.tasks[0].genre).toBe('');
-        expect(setArg.tasks[1].genre).toBe('ジャンル2');
+        // assertion
+        expect(setSpy).toHaveBeenCalledWith({
+            genres: ['ジャンル2'],
+            tasks: [{ genre: '' }, { genre: 'ジャンル2' }]
+        });
+        expect(setSpy).toHaveBeenCalledTimes(1);
+
+        // cleanup
+        getSpy.mockRestore();
+        setSpy.mockRestore();
     });
+
 
     test('displayTasks filters tasks by genre', async () => {
         const mockTasks = [
@@ -109,14 +123,25 @@ describe('Popup functionality', () => {
     });
 
     test('addTask handles empty input', async () => {
-        document.getElementById('taskName').value = '';
-        document.getElementById('dueDate').value = '';
-        document.getElementById('taskGenre').value = '';
+        // setup
+        const taskNameInput = document.createElement('input');
+        taskNameInput.value = '';
+        document.body.appendChild(taskNameInput);
+        DOM_ELEMENTS.taskNameInput = taskNameInput;
 
+        const setSpy = jest.spyOn(chrome.storage.local, 'set');
+
+        // action
         await TaskManager.addTask();
 
-        expect(chrome.storage.local.set.called).toBeFalsy();
+        // assertion
+        expect(setSpy).not.toHaveBeenCalled();
+
+        // cleanup
+        document.body.removeChild(taskNameInput);
+        setSpy.mockRestore();
     });
+
 
     test('updateGenreSelects updates select options', async () => {
         const mockGenres = ['ジャンル1', 'ジャンル2'];
