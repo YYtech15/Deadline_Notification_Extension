@@ -1,14 +1,15 @@
 document.addEventListener('DOMContentLoaded', function () {
     const addTaskBtn = document.getElementById('addTask');
-    const applyFilterBtn = document.getElementById('applyFilter');
     const addGenreBtn = document.getElementById('addGenre');
     const taskNameInput = document.getElementById('taskName');
     const dueDateInput = document.getElementById('dueDate');
     const taskGenreSelect = document.getElementById('taskGenre');
-    const filterGenreSelect = document.getElementById('filterGenre');
+    const genreFilterSelect = document.getElementById('genreFilter');
     const newGenreInput = document.getElementById('newGenre');
     const taskListDiv = document.getElementById('taskList');
     const genreListDiv = document.getElementById('genreList');
+    const openGenreModalBtn = document.getElementById('openGenreModal');
+    const genreModal = document.getElementById('genreModal');
 
     function addTask() {
         const taskName = taskNameInput.value;
@@ -22,29 +23,36 @@ document.addEventListener('DOMContentLoaded', function () {
                 chrome.storage.local.set({ tasks }, function () {
                     console.log('Task saved');
                     displayTasks();
+                    taskNameInput.value = '';
+                    dueDateInput.value = '';
+                    taskGenreSelect.value = '';
                 });
             });
-            taskNameInput.value = '';
-            dueDateInput.value = '';
-            taskGenreSelect.value = '';
         }
     }
 
-    function displayTasks(filterGenre = '') {
+    function displayTasks() {
+        const filterGenre = genreFilterSelect.value;
         chrome.storage.local.get('tasks', function (data) {
             const tasks = data.tasks || [];
             taskListDiv.innerHTML = '';
-            tasks.filter(task => !filterGenre || task.genre === filterGenre)
-                .forEach(function (task, index) {
-                    const daysUntil = getDaysUntil(task.dueDate);
-                    const taskElement = document.createElement('div');
-                    taskElement.className = 'task-item';
-                    taskElement.innerHTML = `
-            <strong>${task.name}</strong> - ${task.genre} - 期日まで${daysUntil}日
-            <button class="delete-task-btn" data-index="${index}">削除</button>
-          `;
-                    taskListDiv.appendChild(taskElement);
-                });
+
+            // タスクを期日でソート
+            const sortedTasks = tasks
+                .filter(task => !filterGenre || task.genre === filterGenre)
+                .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+
+            sortedTasks.forEach(function (task, index) {
+                const daysUntil = getDaysUntil(task.dueDate);
+                const taskElement = document.createElement('div');
+                taskElement.className = 'task-item';
+                taskElement.innerHTML = `
+              <strong>${task.name}</strong> - ${task.genre}<br>
+              期日: ${formatDate(task.dueDate)} (あと${daysUntil}日)
+              <button class="delete-task-btn" data-index="${tasks.indexOf(task)}">削除</button>
+            `;
+                taskListDiv.appendChild(taskElement);
+            });
 
             document.querySelectorAll('.delete-task-btn').forEach(btn => {
                 btn.addEventListener('click', function () {
@@ -57,10 +65,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function getDaysUntil(dueDate) {
         const today = new Date();
+        today.setHours(0, 0, 0, 0);
         const due = new Date(dueDate);
+        due.setHours(0, 0, 0, 0);
         const diffTime = due - today;
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         return diffDays;
+    }
+
+    function formatDate(dateString) {
+        const options = { year: 'numeric', month: 'short', day: 'numeric' };
+        return new Date(dateString).toLocaleDateString('ja-JP', options);
     }
 
     function removeTask(index) {
@@ -69,14 +84,9 @@ document.addEventListener('DOMContentLoaded', function () {
             tasks.splice(index, 1);
             chrome.storage.local.set({ tasks }, function () {
                 console.log('Task removed');
-                displayTasks(filterGenreSelect.value);
+                displayTasks();
             });
         });
-    }
-
-    function applyFilter() {
-        const genre = filterGenreSelect.value;
-        displayTasks(genre);
     }
 
     function addGenre() {
@@ -101,9 +111,8 @@ document.addEventListener('DOMContentLoaded', function () {
         chrome.storage.local.get('genres', function (data) {
             const genres = data.genres || [];
             genreListDiv.innerHTML = '';
-            genres.forEach(function (genre, index) {
+            genres.forEach(function (genre) {
                 const genreElement = document.createElement('div');
-                genreElement.className = 'genre-item';
                 genreElement.innerHTML = `
             ${genre}
             <button class="delete-genre-btn" data-genre="${genre}">削除</button>
@@ -144,17 +153,32 @@ document.addEventListener('DOMContentLoaded', function () {
         chrome.storage.local.get('genres', function (data) {
             const genres = data.genres || [];
             taskGenreSelect.innerHTML = '<option value="">ジャンルを選択</option>';
-            filterGenreSelect.innerHTML = '<option value="">全てのジャンル</option>';
+            genreFilterSelect.innerHTML = '<option value="">全てのジャンル</option>';
             genres.forEach(genre => {
                 taskGenreSelect.innerHTML += `<option value="${genre}">${genre}</option>`;
-                filterGenreSelect.innerHTML += `<option value="${genre}">${genre}</option>`;
+                genreFilterSelect.innerHTML += `<option value="${genre}">${genre}</option>`;
             });
         });
     }
 
+    // モーダル関連の機能
+    openGenreModalBtn.onclick = function () {
+        genreModal.style.display = "block";
+    }
+
+    document.querySelector('.close').onclick = function () {
+        genreModal.style.display = "none";
+    }
+
+    window.onclick = function (event) {
+        if (event.target == genreModal) {
+            genreModal.style.display = "none";
+        }
+    }
+
     addTaskBtn.addEventListener('click', addTask);
-    applyFilterBtn.addEventListener('click', applyFilter);
     addGenreBtn.addEventListener('click', addGenre);
+    genreFilterSelect.addEventListener('change', displayTasks);
 
     // 初期表示
     displayTasks();

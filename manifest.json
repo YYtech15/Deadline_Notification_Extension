@@ -1,8 +1,8 @@
 {
     "manifest_version": 3,
-    "name": "Job Application Tracker with Genres",
+    "name": "Deadline Tracker",
     "version": "2.0",
-    "description": "Track job applications with genres and filtering",
+    "description": "Track task deadline with genres and filtering",
     "permissions": ["storage"],
     "action": {
       "default_popup": "popup.html"
