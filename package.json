@@ -1,0 +1,18 @@
+{
+    "name": "deadline-notification-extension",
+    "version": "1.0.0",
+    "description": "Chrome extension for tracking job application deadlines",
+    "main": "popup.js",
+    "scripts": {
+      "test": "jest",
+      "build": "echo 'Add your build script here'"
+    },
+    "keywords": ["chrome-extension", "job-application", "deadline-tracker"],
+    "author": "YY",
+    "license": "MIT",
+    "devDependencies": {
+      "jest": "^27.0.6",
+      "sinon-chrome": "^3.0.1",
+      "jsdom": "^16.6.0"
+    }
+  }
