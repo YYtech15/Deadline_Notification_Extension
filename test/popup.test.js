@@ -59,13 +59,13 @@ describe('Popup functionality', () => {
         });
     });
 
-    test('addGenre adds a new genre', async () => {
+    test('addGenre adds a new genre', async (done) => {
         const newGenreInput = document.createElement('input');
         newGenreInput.id = DOM_ELEMENTS.newGenreInput;
         newGenreInput.value = '新しいジャンル';
         document.body.appendChild(newGenreInput);
 
-        const setSpy = jest.spyOn(chrome.storage.local, 'set');
+        const setSpy = jest.spyOn(chrome.storage.local, 'set').mockImplementation((obj, callback) => callback());
 
         await GenreManager.addGenre();
 
@@ -76,14 +76,15 @@ describe('Popup functionality', () => {
 
         document.body.removeChild(newGenreInput);
         setSpy.mockRestore();
+        done();
     });
 
-    test('removeGenre removes a genre and updates tasks', async () => {
+    test('removeGenre removes a genre and updates tasks', async (done) => {
         const genreToRemove = 'ジャンル1';
         const getSpy = jest.spyOn(chrome.storage.local, 'get').mockImplementation((keys, callback) => {
             callback({ genres: ['ジャンル1', 'ジャンル2'], tasks: [{ genre: 'ジャンル1' }, { genre: 'ジャンル2' }] });
         });
-        const setSpy = jest.spyOn(chrome.storage.local, 'set');
+        const setSpy = jest.spyOn(chrome.storage.local, 'set').mockImplementation((obj, callback) => callback());
 
         await GenreManager.removeGenre(genreToRemove);
 
@@ -95,9 +96,10 @@ describe('Popup functionality', () => {
 
         getSpy.mockRestore();
         setSpy.mockRestore();
+        done();
     });
 
-    test('displayTasks filters tasks by genre', async () => {
+    test('displayTasks filters tasks by genre', async (done) => {
         const mockTasks = [
             { name: 'タスク1', dueDate: '2023-12-31', genre: 'ジャンル1' },
             { name: 'タスク2', dueDate: '2024-01-15', genre: 'ジャンル2' }
@@ -111,6 +113,7 @@ describe('Popup functionality', () => {
         expect(taskListDiv.children.length).toBe(1);
         expect(taskListDiv.innerHTML).toContain('タスク1');
         expect(taskListDiv.innerHTML).not.toContain('タスク2');
+        done();
     });
 
     test('getDaysUntil calculates days correctly', () => {
@@ -124,7 +127,7 @@ describe('Popup functionality', () => {
         expect(formatDate(date.toISOString())).toBe('2023年12月31日');
     });
 
-    test('addTask handles empty input', async () => {
+    test('addTask handles empty input', async (done) => {
         const taskNameInput = document.createElement('input');
         taskNameInput.id = DOM_ELEMENTS.taskNameInput;
         taskNameInput.value = '';
@@ -138,9 +141,10 @@ describe('Popup functionality', () => {
 
         document.body.removeChild(taskNameInput);
         setSpy.mockRestore();
+        done();
     });
 
-    test('updateGenreSelects updates select options', async () => {
+    test('updateGenreSelects updates select options', async (done) => {
         const mockGenres = ['ジャンル1', 'ジャンル2'];
         chrome.storage.local.get.yields({ genres: mockGenres });
 
@@ -154,5 +158,6 @@ describe('Popup functionality', () => {
         expect(taskGenreSelect.innerHTML).toContain('ジャンル2');
         expect(genreFilterSelect.innerHTML).toContain('ジャンル1');
         expect(genreFilterSelect.innerHTML).toContain('ジャンル2');
+        done();
     });
 });
