@@ -1,46 +1,50 @@
 document.addEventListener('DOMContentLoaded', function () {
     const addTaskBtn = document.getElementById('addTask');
+    const applyFilterBtn = document.getElementById('applyFilter');
     const taskNameInput = document.getElementById('taskName');
     const dueDateInput = document.getElementById('dueDate');
+    const taskGenreSelect = document.getElementById('taskGenre');
+    const filterGenreSelect = document.getElementById('filterGenre');
     const taskListDiv = document.getElementById('taskList');
 
-    // Function to add a task
     function addTask() {
         const taskName = taskNameInput.value;
         const dueDate = dueDateInput.value;
-        if (taskName && dueDate) {
+        const genre = taskGenreSelect.value;
+
+        if (taskName && dueDate && genre) {
             chrome.storage.sync.get('tasks', function (data) {
                 const tasks = data.tasks || [];
-                tasks.push({ name: taskName, dueDate: dueDate });
-                chrome.storage.sync.set({ tasks: tasks }, function () {
+                tasks.push({ name: taskName, dueDate, genre });
+                chrome.storage.sync.set({ tasks }, function () {
                     console.log('Task saved');
                     displayTasks();
                 });
             });
             taskNameInput.value = '';
             dueDateInput.value = '';
+            taskGenreSelect.value = '';
         }
     }
 
-    // Function to display tasks
-    function displayTasks() {
+    function displayTasks(filterGenre = '') {
         chrome.storage.sync.get('tasks', function (data) {
             const tasks = data.tasks || [];
             taskListDiv.innerHTML = '';
-            tasks.forEach(function (task, index) {
-                const daysUntil = getDaysUntil(task.dueDate);
-                const taskElement = document.createElement('div');
-                taskElement.className = 'task-item';
-                taskElement.innerHTML = `
-            <strong>${task.name}</strong> - 期日まで${daysUntil}日
+            tasks.filter(task => !filterGenre || task.genre === filterGenre)
+                .forEach(function (task, index) {
+                    const daysUntil = getDaysUntil(task.dueDate);
+                    const taskElement = document.createElement('div');
+                    taskElement.className = 'task-item';
+                    taskElement.innerHTML = `
+            <strong>${task.name}</strong> - ${task.genre} - 期日まで${daysUntil}日
             <button onclick="removeTask(${index})">削除</button>
           `;
-                taskListDiv.appendChild(taskElement);
-            });
+                    taskListDiv.appendChild(taskElement);
+                });
         });
     }
 
-    // Function to calculate days until due date
     function getDaysUntil(dueDate) {
         const today = new Date();
         const due = new Date(dueDate);
@@ -49,21 +53,24 @@ document.addEventListener('DOMContentLoaded', function () {
         return diffDays;
     }
 
-    // Function to remove a task
     window.removeTask = function (index) {
         chrome.storage.sync.get('tasks', function (data) {
             const tasks = data.tasks || [];
             tasks.splice(index, 1);
-            chrome.storage.sync.set({ tasks: tasks }, function () {
+            chrome.storage.sync.set({ tasks }, function () {
                 console.log('Task removed');
                 displayTasks();
             });
         });
     }
 
-    // Set up event listeners
-    addTaskBtn.addEventListener('click', addTask);
+    function applyFilter() {
+        const genre = filterGenreSelect.value;
+        displayTasks(genre);
+    }
 
-    // Initial display
+    addTaskBtn.addEventListener('click', addTask);
+    applyFilterBtn.addEventListener('click', applyFilter);
+
     displayTasks();
 });
