@@ -38,10 +38,18 @@ document.addEventListener('DOMContentLoaded', function () {
                     taskElement.className = 'task-item';
                     taskElement.innerHTML = `
             <strong>${task.name}</strong> - ${task.genre} - 期日まで${daysUntil}日
-            <button onclick="removeTask(${index})">削除</button>
+            <button class="delete-btn" data-index="${index}">削除</button>
           `;
                     taskListDiv.appendChild(taskElement);
                 });
+
+            // 削除ボタンにイベントリスナーを追加
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    removeTask(index);
+                });
+            });
         });
     }
 
@@ -53,13 +61,13 @@ document.addEventListener('DOMContentLoaded', function () {
         return diffDays;
     }
 
-    window.removeTask = function (index) {
+    function removeTask(index) {
         chrome.storage.sync.get('tasks', function (data) {
             const tasks = data.tasks || [];
             tasks.splice(index, 1);
             chrome.storage.sync.set({ tasks }, function () {
                 console.log('Task removed');
-                displayTasks();
+                displayTasks(filterGenreSelect.value);
             });
         });
     }
@@ -72,5 +80,6 @@ document.addEventListener('DOMContentLoaded', function () {
     addTaskBtn.addEventListener('click', addTask);
     applyFilterBtn.addEventListener('click', applyFilter);
 
+    // 初期表示
     displayTasks();
 });
