@@ -3,6 +3,7 @@ import chrome from 'sinon-chrome';
 import { TaskManager } from '../js/taskManager.js';
 import { GenreManager } from '../js/genreManager.js';
 import { getDaysUntil, formatDate } from '../js/utils.js';
+import { jest } from '@jest/globals'; // 追加: jestのインポート
 
 const dom = new JSDOM(`
 <!DOCTYPE html>
@@ -30,7 +31,7 @@ describe('Popup functionality', () => {
         chrome.storage.local.clear();
         document.getElementById('taskList').innerHTML = '';
         document.getElementById('genreList').innerHTML = '';
-        jest.clearAllMocks();
+        jest.clearAllMocks(); // jestのクリア
     });
 
     test('removeTask removes a task', async () => {
