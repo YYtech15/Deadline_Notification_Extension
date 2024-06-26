@@ -18,23 +18,6 @@ export const GenreManager = {
             });
         }
     },
-    displayGenres: function () {
-        chrome.storage.local.get('genres', function (data) {
-            const genres = data.genres || [];
-            const genreListDiv = getElement(DOM_ELEMENTS.genreListDiv);
-            genreListDiv.innerHTML = '';
-            genres.forEach(function (genre) {
-                const genreElement = document.createElement('div');
-                genreElement.innerHTML = `
-                    ${genre}
-                    <button class="delete-genre-btn" data-genre="${genre}">削除</button>
-                `;
-                genreListDiv.appendChild(genreElement);
-            });
-
-            GenreManager.addGenreDeleteListeners();
-        });
-    },
     removeGenre: function (genre) {
         chrome.storage.local.get(['genres', 'tasks'], function (data) {
             const genres = data.genres || [];
@@ -50,7 +33,6 @@ export const GenreManager = {
                 console.log('Genre removed');
                 GenreManager.displayGenres();
                 GenreManager.updateGenreSelects();
-                // TaskManager.displayTasks() の呼び出しを削除
             });
         });
     },
@@ -75,6 +57,23 @@ export const GenreManager = {
                 const genre = this.getAttribute('data-genre');
                 GenreManager.removeGenre(genre);
             });
+        });
+    },
+    displayGenres: function () {
+        chrome.storage.local.get('genres', function (data) {
+            const genres = data.genres || [];
+            const genreListDiv = getElement(DOM_ELEMENTS.genreListDiv);
+            genreListDiv.innerHTML = '';
+            genres.forEach(function (genre) {
+                const genreElement = document.createElement('div');
+                genreElement.innerHTML = `
+                    ${genre}
+                    <button class="delete-genre-btn" data-genre="${genre}">削除</button>
+                `;
+                genreListDiv.appendChild(genreElement);
+            });
+
+            GenreManager.addGenreDeleteListeners();
         });
     }
 };
