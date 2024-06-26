@@ -3,13 +3,24 @@
     "version": "2.0.0",
     "description": "Chrome extension for tracking job applications",
     "main": "background.js",
+    "type": "module",
     "scripts": {
-      "test": "jest",
+      "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
       "build": "mkdir -p dist && cp manifest.json popup.html popup.js background.js dist/"
     },
     "devDependencies": {
       "jest": "^27.0.6",
       "jsdom": "^16.6.0",
-      "sinon-chrome": "^3.0.1"
+      "sinon-chrome": "^3.0.1",
+      "@babel/preset-env": "^7.14.7"
+    },
+    "jest": {
+      "transform": {
+        "^.+\\.js$": "babel-jest"
+      },
+      "transformIgnorePatterns": [
+        "/node_modules/(?!sinon-chrome)"
+      ],
+      "testEnvironment": "jest-environment-node"
     }
   }
