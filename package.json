@@ -1,0 +1,15 @@
+{
+    "name": "job-application-tracker",
+    "version": "2.0.0",
+    "description": "Chrome extension for tracking job applications",
+    "main": "background.js",
+    "scripts": {
+      "test": "jest",
+      "build": "echo 'Add your build script here'"
+    },
+    "devDependencies": {
+      "jest": "^27.0.6",
+      "jsdom": "^16.6.0",
+      "sinon-chrome": "^3.0.1"
+    }
+  }

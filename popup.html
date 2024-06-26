@@ -2,7 +2,7 @@
 <html lang="ja">
   <head>
     <meta charset="UTF-8" />
-    <title>Local Job Application Tracker</title>
+    <title>Job Application Tracker with Genres</title>
     <script src="popup.js"></script>
     <style>
       body {
@@ -11,6 +11,7 @@
         font-family: Arial, sans-serif;
       }
       input,
+      select,
       button {
         margin: 5px 0;
         width: 100%;
@@ -30,7 +31,22 @@
     <h2>Job Application Tracker</h2>
     <input type="text" id="taskName" placeholder="タスク名" />
     <input type="date" id="dueDate" />
+    <select id="taskGenre">
+      <option value="">ジャンルを選択</option>
+      <option value="ES">ES</option>
+      <option value="適性検査">適性検査</option>
+      <option value="面接">面接</option>
+    </select>
     <button id="addTask">タスクを追加</button>
+
+    <select id="filterGenre">
+      <option value="">全てのジャンル</option>
+      <option value="ES">ES</option>
+      <option value="適性検査">適性検査</option>
+      <option value="面接">面接</option>
+    </select>
+    <button id="applyFilter">フィルター適用</button>
+
     <div id="taskList"></div>
   </body>
 </html>

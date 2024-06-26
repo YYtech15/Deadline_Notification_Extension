@@ -1,12 +1,13 @@
 {
-    "manifest_version": 2,
-    "name": "Local Job Application Tracker",
-    "version": "1.0",
-    "description": "Extension to locally save and display ES and aptitude test deadlines and details",
-    "permissions": [
-      "storage"
-    ],
-    "browser_action": {
+    "manifest_version": 3,
+    "name": "Job Application Tracker with Genres",
+    "version": "2.0",
+    "description": "Track job applications with genres and filtering",
+    "permissions": ["storage"],
+    "action": {
       "default_popup": "popup.html"
+    },
+    "background": {
+      "service_worker": "background.js"
     }
   }
