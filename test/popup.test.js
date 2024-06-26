@@ -5,6 +5,15 @@ import { GenreManager } from '../js/genreManager.js';
 import { getDaysUntil, formatDate } from '../js/utils.js';
 import { jest } from '@jest/globals'; // 追加: jestのインポート
 
+const DOM_ELEMENTS = {
+    newGenreInput: 'newGenre',
+    taskNameInput: 'taskName',
+    dueDateInput: 'dueDate',
+    taskGenreSelect: 'taskGenre',
+    genreFilterSelect: 'genreFilter',
+    taskListDiv: 'taskList'
+};
+
 const dom = new JSDOM(`
 <!DOCTYPE html>
 <html>
@@ -29,7 +38,7 @@ global.chrome = chrome;
 describe('Popup functionality', () => {
     beforeEach(() => {
         chrome.storage.local.clear();
-        document.getElementById('taskList').innerHTML = '';
+        document.getElementById(DOM_ELEMENTS.taskListDiv).innerHTML = '';
         document.getElementById('genreList').innerHTML = '';
         jest.clearAllMocks(); // jestのクリア
     });
@@ -53,9 +62,9 @@ describe('Popup functionality', () => {
     test('addGenre adds a new genre', async () => {
         // setup
         const newGenreInput = document.createElement('input');
+        newGenreInput.id = DOM_ELEMENTS.newGenreInput;
         newGenreInput.value = '新しいジャンル';
         document.body.appendChild(newGenreInput);
-        DOM_ELEMENTS.newGenreInput = newGenreInput;
 
         const setSpy = jest.spyOn(chrome.storage.local, 'set');
 
@@ -94,18 +103,17 @@ describe('Popup functionality', () => {
         setSpy.mockRestore();
     });
 
-
     test('displayTasks filters tasks by genre', async () => {
         const mockTasks = [
             { name: 'タスク1', dueDate: '2023-12-31', genre: 'ジャンル1' },
             { name: 'タスク2', dueDate: '2024-01-15', genre: 'ジャンル2' }
         ];
         chrome.storage.local.get.yields({ tasks: mockTasks });
-        document.getElementById('genreFilter').value = 'ジャンル1';
+        document.getElementById(DOM_ELEMENTS.genreFilterSelect).value = 'ジャンル1';
 
         await TaskManager.displayTasks();
 
-        const taskListDiv = document.getElementById('taskList');
+        const taskListDiv = document.getElementById(DOM_ELEMENTS.taskListDiv);
         expect(taskListDiv.children.length).toBe(1);
         expect(taskListDiv.innerHTML).toContain('タスク1');
         expect(taskListDiv.innerHTML).not.toContain('タスク2');
@@ -125,9 +133,9 @@ describe('Popup functionality', () => {
     test('addTask handles empty input', async () => {
         // setup
         const taskNameInput = document.createElement('input');
+        taskNameInput.id = DOM_ELEMENTS.taskNameInput;
         taskNameInput.value = '';
         document.body.appendChild(taskNameInput);
-        DOM_ELEMENTS.taskNameInput = taskNameInput;
 
         const setSpy = jest.spyOn(chrome.storage.local, 'set');
 
@@ -141,7 +149,6 @@ describe('Popup functionality', () => {
         document.body.removeChild(taskNameInput);
         setSpy.mockRestore();
     });
-
 
     test('updateGenreSelects updates select options', async () => {
         const mockGenres = ['ジャンル1', 'ジャンル2'];
