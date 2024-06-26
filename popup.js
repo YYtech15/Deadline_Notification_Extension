@@ -13,10 +13,10 @@ document.addEventListener('DOMContentLoaded', function () {
         const genre = taskGenreSelect.value;
 
         if (taskName && dueDate && genre) {
-            chrome.storage.sync.get('tasks', function (data) {
+            chrome.storage.local.get('tasks', function (data) {
                 const tasks = data.tasks || [];
                 tasks.push({ name: taskName, dueDate, genre });
-                chrome.storage.sync.set({ tasks }, function () {
+                chrome.storage.local.set({ tasks }, function () {
                     console.log('Task saved');
                     displayTasks();
                 });
@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function displayTasks(filterGenre = '') {
-        chrome.storage.sync.get('tasks', function (data) {
+        chrome.storage.local.get('tasks', function (data) {
             const tasks = data.tasks || [];
             taskListDiv.innerHTML = '';
             tasks.filter(task => !filterGenre || task.genre === filterGenre)
@@ -62,10 +62,10 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function removeTask(index) {
-        chrome.storage.sync.get('tasks', function (data) {
+        chrome.storage.local.get('tasks', function (data) {
             const tasks = data.tasks || [];
             tasks.splice(index, 1);
-            chrome.storage.sync.set({ tasks }, function () {
+            chrome.storage.local.set({ tasks }, function () {
                 console.log('Task removed');
                 displayTasks(filterGenreSelect.value);
             });
