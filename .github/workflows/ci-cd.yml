@@ -2,9 +2,9 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [main,develop]
+    branches: [main, develop]
   pull_request:
-    branches: [main,develop]
+    branches: [main, develop]
 
 jobs:
   test:
@@ -14,8 +14,14 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: "14"
-      - run: npm ci
+          node-version: "16" # Node.js 16 LTSを使用
+      - name: Install dependencies
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
       - run: npm test
 
   build:
@@ -26,8 +32,14 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: "14"
-      - run: npm ci
+          node-version: "16" # Node.js 16 LTSを使用
+      - name: Install dependencies
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
       - run: npm run build
       - uses: actions/upload-artifact@v2
         with:
