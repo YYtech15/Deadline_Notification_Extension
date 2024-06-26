@@ -1,13 +1,13 @@
-name: CI/CD
+name: CI/CD Pipeline
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main]
   pull_request:
-    branches: [main, develop]
+    branches: [main]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -15,51 +15,21 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: "14"
-      - name: Install dependencies
-        run: npm install
-      - name: Build
-        run: |
-          npm run build
-          echo "Contents of dist directory:"
-          ls -R dist
-      - name: Upload artifact
-        uses: actions/upload-artifact@v2
+      - run: npm ci
+      - run: npm test
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "14"
+      - run: npm ci
+      - run: npm run build
+      - uses: actions/upload-artifact@v2
         with:
           name: dist
           path: dist
-      - name: Check artifact
-        run: |
-          echo "Checking uploaded artifact"
-          artifacts_url=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            https://api.github.com/repos/${{ github.repository }}/actions/artifacts | \
-            jq -r '.artifacts[0].archive_download_url')
-          echo "Artifact URL: $artifacts_url"
-          if [ -z "$artifacts_url" ]; then
-            echo "No artifact found"
-            exit 1
-          fi
-
-  # デプロイジョブはコメントアウト
-  # deploy:
-  #   needs: build
-  #   runs-on: ubuntu-latest
-  #   if: github.ref == 'refs/heads/main'
-  #   steps:
-  #   - uses: actions/checkout@v2
-  #   - name: Download artifact
-  #     uses: actions/download-artifact@v2
-  #     with:
-  #       name: dist
-  #   - name: Check downloaded artifact
-  #     run: |
-  #       echo "Contents of current directory:"
-  #       ls -R
-  #   # Chrome Web Storeへのデプロイステップはコメントアウト
-  #   # - name: Deploy to Chrome Web Store
-  #   #   uses: trmcnvn/chrome-addon@v2
-  #   #   with:
-  #   #     extension: ${{ secrets.CHROME_EXTENSION_ID }}
-  #   #     zip: dist
-  #   #     client-id: ${{ secrets.CHROME_CLIENT_ID }}
-  #   #     client-secret: ${{ secrets.CHROME_CLIENT_SECRET }}
-  #   #     refresh-token: ${{ secrets.CHROME_REFRESH_TOKEN }}
