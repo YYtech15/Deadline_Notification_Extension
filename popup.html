@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Local Job Application Tracker</title>
+    <script src="popup.js"></script>
+    <style>
+      body {
+        width: 300px;
+        padding: 10px;
+        font-family: Arial, sans-serif;
+      }
+      input,
+      button {
+        margin: 5px 0;
+        width: 100%;
+        padding: 5px;
+      }
+      #taskList {
+        margin-top: 10px;
+      }
+      .task-item {
+        margin-bottom: 10px;
+        border-bottom: 1px solid #ccc;
+        padding-bottom: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Job Application Tracker</h2>
+    <input type="text" id="taskName" placeholder="タスク名" />
+    <input type="date" id="dueDate" />
+    <button id="addTask">タスクを追加</button>
+    <div id="taskList"></div>
+  </body>
+</html>
